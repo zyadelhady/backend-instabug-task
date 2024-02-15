@@ -3,5 +3,5 @@ class Chat < ApplicationRecord
   validates :messages_count, presence: true
 
   belongs_to :application
-  has_many :messages
+  has_many :messages, dependent: :delete_all
 end

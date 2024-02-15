@@ -3,7 +3,7 @@ class CreateChats < ActiveRecord::Migration[7.1]
     create_table :chats do |t|
       t.integer :number, null: false
       t.integer :messages_count, default: 0, null: false
-      t.references :application, null: false, foreign_key: true
+      t.references :application, null: false, foreign_key: {on_delete: :cascade}
 
       t.timestamps
     end

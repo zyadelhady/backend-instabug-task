@@ -9,7 +9,7 @@
 #   end
 i=1
 5.times do
-  Application.create({name: "AppLication " + i.to_s, token: SecureRandom.hex})
+  Application.create({name: "AppLication " + i.to_s, token: SecureRandom.uuid})
   j=1
   5.times do
     Chat.create({application_id: Application.last.id, number:j})
@@ -20,6 +20,6 @@ i=1
       content:"Message " + k.to_s})
       k = k + 1
     end
-    i=i+1
-    end
+  end
+  i=i+1
 end
