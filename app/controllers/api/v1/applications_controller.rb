@@ -11,7 +11,6 @@ module Api
 
         if application.save
           render json: {data: application.slice(@columns)},status: :ok
-          REDIS.incr("application_"+ application.id + "chat_counts")
         else
           render json: {errors: application.errors},status: :unprocessable_entity
         end

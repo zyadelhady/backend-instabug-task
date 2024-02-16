@@ -3,16 +3,21 @@ module Api
     class ChatsController < ApplicationController
 
       def initialize
-        @columns = Chat.attribute_names - ['id']
+        @columns = Chat.attribute_names - ['id', 'application_id']
       end
 
       def create
-        application = Application.find_by(token: params[:application_token])
+        application = Application.select(:id).find_by(token: params[:application_token])
 
-        REDIS.get("application_"+ application.id + "chat_counts")
+        if !application.present?
+          return render json: {errors: "No Application Found"},status: :not_found
+        end
 
-        chat  = Chat.new(chat_params)
-        chat.token = SecureRandom.uuid
+        puts application.redis_key
+
+        new_chat_num = REDIS.incr(application.redis_key)
+
+        chat  = Chat.new({ application_id: application.id,number: new_chat_num })
 
         if chat.save
           render json: {data: chat.slice(@columns)},status: :ok
@@ -22,29 +27,22 @@ module Api
       end
 
       def index
-        applications = Chat.all.select(@columns)
-        render json: {data: applications}
+        chats = Chat.select(@columns).joins(:application).where(applications: { token: params[:application_token] })
+        render json: {data: chats}
       end
 
       def show
-        chats = Chat.joins(:application).where(applications: { token: params[:application_token] })
-
-
-        render json: {data: chats},status: :ok
+        chat = Chat.select(@columns).joins(:application).where(applications: { token: params[:application_token] },number: params[:number]).limit(1).first()
+        render json: {data: chat},status: :ok
       end
 
       def update
-        chat = Chat.find_by(token: params[:token])
-
-        if chat.update(chat_params)
-          render json: {data: chat.slice(@columns)},status: :ok
-        else
-          render json: { errors: chat.errors }, status: :bad_request
-        end
+          render status: :bad_request
       end
 
       def destroy
-        chat = Chat.find_by(token: params[:token])
+        chat = Chat.joins(:application).where(applications: { token: params[:application_token] },number: params[:number]).limit(1).first()
+
         if chat
           if chat.destroy
             render :no_content
@@ -56,10 +54,6 @@ module Api
         end
       end
 
-      private
-      def chat_params
-          params.require(:chat).permit(:name)
-      end
     end
   end
 end

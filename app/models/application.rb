@@ -4,4 +4,8 @@ class Application < ApplicationRecord
   validates :chats_count, presence: true
 
   has_many :chats, dependent: :delete_all
+
+  def redis_key
+    "application:#{self.id}:chatsCount"
+  end
 end
