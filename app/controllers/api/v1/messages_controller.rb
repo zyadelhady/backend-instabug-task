@@ -20,21 +20,30 @@ module Api
       end
 
       def create
-        chat = Chat.select([:id,:number,:application_id]).joins(:application).where(applications: { token: params[:application_token] },number: params[:chat_number]).limit(1).first()
+        chat = Chat.select([:id,:number,:application_id]).includes(:messages).joins(:application).where(applications: { token: params[:application_token] },number: params[:chat_number]).limit(1).first()
 
         if !chat.present?
           return render json: {errors: "No Chat Found"},status: :not_found
+        end
+
+        / we can also use SETNX instead of this /
+
+        current_redis_number = REDIS.get(chat.redis_key)
+
+        if current_redis_number.nil?
+          lock = $red_lock.lock("messages",2000)
+          REDIS.set(chat.redis_key,chat.messages.maximum(:number))
+          $red_lock.unlock(lock)
         end
 
         new_message_num = REDIS.incr(chat.redis_key)
 
         message = chat.messages.new({content: message_params[:content], number: new_message_num })
 
-        if message.save
-          render json: { data: message.slice(@columns) }, status: :ok
-        else
-          render json: { errors: message.errors }, status: :unprocessable_entity
-        end
+        $kafka_producer.produce(message.attributes.to_json, topic: "messages")
+        $kafka_producer.deliver_messages
+
+        render json: { data: message.slice(:number) }, status: :ok
       end
 
       def update
