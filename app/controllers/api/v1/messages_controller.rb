@@ -32,7 +32,7 @@ module Api
 
         if current_redis_number.nil?
           lock = $red_lock.lock("messages",2000)
-          REDIS.set(chat.redis_key,chat.messages.maximum(:number))
+          REDIS.set(chat.redis_key,chat.messages.maximum(:number).to_i)
           $red_lock.unlock(lock)
         end
 
