@@ -14,7 +14,7 @@ gem 'racecar'
 gem 'redlock'
 gem 'ruby-kafka'
 gem "redis", "~> 4.2"
-
+gem 'whenever', require: false
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
 # gem "jbuilder"
 
