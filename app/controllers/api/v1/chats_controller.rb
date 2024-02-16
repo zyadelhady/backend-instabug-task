@@ -13,8 +13,6 @@ module Api
           return render json: {errors: "No Application Found"},status: :not_found
         end
 
-        puts application.redis_key
-
         new_chat_num = REDIS.incr(application.redis_key)
 
         chat  = Chat.new({ application_id: application.id,number: new_chat_num })
