@@ -27,15 +27,17 @@ ActiveRecord::Schema[7.1].define(version: 2024_02_15_192032) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["application_id"], name: "index_chats_on_application_id"
+    t.index ["number"], name: "index_chats_on_number"
   end
 
   create_table "messages", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
-    t.text "content"
-    t.integer "number"
+    t.text "content", null: false
+    t.integer "number", null: false
     t.bigint "chat_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["chat_id"], name: "index_messages_on_chat_id"
+    t.index ["number"], name: "index_messages_on_number"
   end
 
   add_foreign_key "chats", "applications", on_delete: :cascade

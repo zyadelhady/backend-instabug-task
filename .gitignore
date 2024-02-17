@@ -31,3 +31,7 @@
 
 # Ignore master key for decrypting credentials and more.
 /config/master.key
+
+./messages-consumer.pid
+./chats-consumer.pid
+./elastic-messages-consumer.pid

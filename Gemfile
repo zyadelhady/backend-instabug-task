@@ -2,6 +2,9 @@ source "https://rubygems.org"
 
 ruby "3.2.0"
 
+gem 'elasticsearch-model'
+gem 'elasticsearch-rails'
+
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
 gem "rails", "~> 7.1.3"
 

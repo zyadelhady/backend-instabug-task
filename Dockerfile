@@ -18,8 +18,6 @@ RUN service cron start
 RUN bundle exec whenever --update-crontab --set environment=development
 
 
-EXPOSE 3000
+RUN chmod +x setup.sh
 
-# CMD [ "rails","server" ]
-ENTRYPOINT ["tail"]
-CMD ["-f","/dev/null"]
+EXPOSE 3000

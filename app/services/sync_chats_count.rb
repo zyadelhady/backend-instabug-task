@@ -1,5 +1,6 @@
 class SyncChatsCount
   def self.sync_now()
+    # we should use pagination if the table is too big
     applications = Application.all()
 
 

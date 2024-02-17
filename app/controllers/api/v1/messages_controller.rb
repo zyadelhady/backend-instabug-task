@@ -5,8 +5,29 @@ module Api
         @columns = Message.attribute_names - ['id', 'chat_id']
       end
 
+
+
       def index
-        messages = Message.select(@columns).joins(chat: :application).where(applications: { token: params[:application_token] },chats: {number: params[:chat_number]})
+        query = {
+          bool: {
+            must: [
+              { term: { 'chat_number': params[:chat_number] } },
+              { term: { 'application_token.keyword': params[:application_token] } }
+            ]
+          }
+        }
+
+        if params[:content].present?
+          query[:bool][:must] << {
+            match: {
+              "content": {
+                query: "#{params[:content]}",
+                fuzziness: '5'
+              }
+            }
+          }
+        end
+        messages = $elastic.search(index: 'messages', body: { query: query })['hits']['hits'].pluck('_source')
         render json: { data: messages }, status: :ok
       end
 
@@ -40,7 +61,10 @@ module Api
 
         message = chat.messages.new({content: message_params[:content], number: new_message_num })
 
-        $kafka_producer.produce(message.attributes.to_json, topic: "messages")
+
+        message_data = message.attributes.merge(application_token: chat.application.token,chat_number: chat.number).to_json
+
+        $kafka_producer.produce(message_data, topic: "messages")
         $kafka_producer.deliver_messages
 
         render json: { data: message.slice(:number) }, status: :ok
