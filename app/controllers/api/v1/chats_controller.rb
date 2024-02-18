@@ -4,6 +4,7 @@ module Api
 
       def initialize
         @columns = Chat.attribute_names - ['id', 'application_id']
+        @topic = "chats"
       end
 
       def create
@@ -27,7 +28,7 @@ module Api
 
         chat  = Chat.new({ application_id: application.id,number: new_chat_num })
 
-        $kafka_producer.produce(chat.attributes.to_json, topic: "chats")
+        $kafka_producer.produce(chat.attributes.to_json, topic: @topic)
         $kafka_producer.deliver_messages
 
         render json: { data: chat.slice(:number, :messages_count) }, status: :ok

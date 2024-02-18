@@ -6,11 +6,7 @@ class ChatsConsumer < Racecar::Consumer
 
     chat = Chat.new(chat_attributes)
 
-    if chat.save
-      puts "Chat record saved: #{chat.inspect}"
-    else
-      puts "Failed to save chat record: #{chat.errors.full_messages}"
-    end
+    chat.save!
   rescue JSON::ParserError => e
     puts "Failed to parse JSON message: #{e.message}"
   end

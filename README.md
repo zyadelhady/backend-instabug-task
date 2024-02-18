@@ -40,7 +40,7 @@ Create a new application with a randomly generated token.
 - **Code:** 200 OK <br />
   **Content:**
 
-  ```
+  ```json
   {
     "data": {
       "name": "Example Application",
@@ -55,7 +55,7 @@ Create a new application with a randomly generated token.
 - **Error Response:**
 - **Code:** 422 Unprocessable Entity <br />
   **Content:**
-  ```
+  ```json
   {
     "errors": {
       "name": ["can't be blank"]
@@ -76,7 +76,7 @@ Retrieve a list of all applications.
 - **Success Response:**
 - **Code:** 200 OK <br />
   **Content:**
-  ```
+  ```json
   {
     "data": [
       {
@@ -115,7 +115,7 @@ Retrieve a specific application by its token.
 - **Code:** 200 OK <br />
   **Content:**
 
-  ```
+  ```json
   {
     "data": {
       "name": "Example Application",
@@ -130,7 +130,7 @@ Retrieve a specific application by its token.
 - **Error Response:**
 - **Code:** 404 Not Found <br />
   **Content:**
-  ```
+  ```json
   {
     "errors": "Application not found"
   }
@@ -161,7 +161,7 @@ Update an existing application.
 - **Code:** 200 OK <br />
   **Content:**
 
-  ```
+  ```json
   {
     "data": {
       "name": "New Name",
@@ -176,7 +176,7 @@ Update an existing application.
 - **Error Response:**
 - **Code:** 400 Bad Request <br />
   **Content:**
-  ```
+  ```json
   {
     "errors": {
       "name": ["can't be blank"]
@@ -204,7 +204,7 @@ Delete an existing application.
 - **Error Response:**
 - **Code:** 404 Not Found <br />
   **Content:**
-  ```
+  ```json
   {
     "errors": "Application not found"
   }
@@ -401,7 +401,7 @@ Retrieve a list of messages for a specific chat.
   `chat_number=[integer]`
   `application_token=[string]`
 
-  **Optional:**
+- **Query Params**
 
   `content=[string]`
 

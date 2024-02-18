@@ -3,6 +3,7 @@ module Api
     class MessagesController < ApplicationController
       def initialize
         @columns = Message.attribute_names - ['id', 'chat_id']
+        @topic = "messages"
       end
 
 
@@ -27,6 +28,7 @@ module Api
             }
           }
         end
+
         messages = $elastic.search(index: 'messages', body: { query: query })['hits']['hits'].pluck('_source')
         render json: { data: messages }, status: :ok
       end
@@ -64,20 +66,25 @@ module Api
 
         message_data = message.attributes.merge(application_token: chat.application.token,chat_number: chat.number).to_json
 
-        $kafka_producer.produce(message_data, topic: "messages")
+        p message_data
+
+        $kafka_producer.produce(message_data, topic: @topic)
         $kafka_producer.deliver_messages
 
         render json: { data: message.slice(:number) }, status: :ok
       end
 
       def update
-        message = Message.joins(chat: :application).where(applications: { token: params[:application_token] },chats: {number: params[:chat_number]},number: params[:number]).limit(1).first()
+        message = Message.joins(chat: :application)
+        .select('messages.*, chats.number as chat_number, applications.token as application_token')
+        .where(applications: { token: params[:application_token] },chats: {number: params[:chat_number]},number: params[:number]).limit(1).first()
+
+
+
         if message
-          if message.update(message_params)
-            render json: { data: message.slice(@columns) }, status: :ok
-          else
-            render json: { errors: message.errors }, status: :unprocessable_entity
-          end
+          message['content'] = message_params['content']
+          $kafka_producer.produce(message.to_json,topic: @topic)
+          $kafka_producer.deliver_messages
         else
           render json: { errors: "Message not found" }, status: :not_found
         end
