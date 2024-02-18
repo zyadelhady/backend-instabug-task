@@ -2,7 +2,6 @@ class MessagesConsumer < Racecar::Consumer
   subscribes_to "messages"
 
   def process(message)
-    p "HI"
 
     msg_attributes = JSON.parse(message.value)
     msg_body = msg_attributes.except('application_token','chat_number')
